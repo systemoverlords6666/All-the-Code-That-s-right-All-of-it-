@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -21,9 +22,11 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
-public class Autonomous_6666 extends LinearOpMode {
+public class Autonomous_6666 extends LinearOpMode{
 
-//VuForia VuMarks Start
+
+
+    //VuForia
     private static final String VUFORIA_KEY = " AftOfUH/////AAABmfHQ2PnhyUltsx5fIsmFJ1YV/zibssSiPsNVcVrP2Ggre0S6BwhjjZhVlUVe6PQ5jKk1g9ys9Z5nd81xFqyP7Pyg072BJpsj3jQcxkMxK0E8bXcqqctYkPVfvEhh/GlDssHzfHq812FlVMepvkxF2xLzL9jhhhbYhjm9nDlMRJb8oW6tANHjZRJ7LOyDi2QJClST1SwuLDwgCpif6UyXOJ7bXulirIWAJL4LED5kNl8qTsGYRteYwsrxA+JkwHN5pMbUgofWfcrVRcxMJcep4IYCDFQbsgct3wqsLnGSo6n5WbfyLanh9azncmd/l1Kt+t8pAXU0wVNU3L1BrOZ3isJo2psseqZkdeGzNGQZPcP";
 
     private static final float mmPerInch        = 25.4f;
@@ -36,8 +39,17 @@ public class Autonomous_6666 extends LinearOpMode {
     private boolean targetVisible = false;
 
     VuforiaLocalizer vuforia;
+    //Vuforia
 
-    @Override public void runOpMode() {
+    // Motion
+    DcMotor lm;
+    DcMotor rm;
+    DcMotor up;
+    //motion
+
+
+    @Override public void runOpMode() throws InterruptedException {
+        //vuforia
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -170,7 +182,24 @@ public class Autonomous_6666 extends LinearOpMode {
             }
             telemetry.update();
         }
-    }
-// VuForia VuMarks Ends Here
+        //vuforia
 
+        //Movement
+        lm = hardwareMap.dcMotor.get("lm");
+        rm = hardwareMap.dcMotor.get("rm");
+        up = hardwareMap.dcMotor.get("up");
+
+        //up.setDirection(DcMotor.Direction.REVERSE);
+        rm.setDirection(DcMotor.Direction.REVERSE);
+        waitForStart();
+
+        up.setPower(1);
+        sleep(500);
+
+        lm.setPower(-.75);
+        rm.setPower(.75);
+        sleep(1000);
+        //Movement
+
+    }
 }
