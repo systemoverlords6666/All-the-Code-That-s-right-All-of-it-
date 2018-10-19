@@ -39,6 +39,12 @@ public class Autonomous_6666 extends LinearOpMode{
     private boolean targetVisible = false;
 
     VuforiaLocalizer vuforia;
+
+    boolean BlueRover;
+    boolean RedFootprint;
+    boolean FrontCraters;
+    boolean BackSpace;
+
     //Vuforia
 
     // Motion
@@ -49,6 +55,25 @@ public class Autonomous_6666 extends LinearOpMode{
 
 
     @Override public void runOpMode() throws InterruptedException {
+
+        //Movement
+        lm = hardwareMap.dcMotor.get("lm");
+        rm = hardwareMap.dcMotor.get("rm");
+        up = hardwareMap.dcMotor.get("up");
+
+        //up.setDirection(DcMotor.Direction.REVERSE);
+        rm.setDirection(DcMotor.Direction.REVERSE);
+        waitForStart();
+
+        up.setPower(1);
+        sleep(500);
+
+        lm.setPower(-.75);
+        rm.setPower(.75);
+        sleep(750);
+
+        //movements
+
         //vuforia
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -63,19 +88,34 @@ public class Autonomous_6666 extends LinearOpMode{
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
 
-        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
-        blueRover.setName("Blue-Rover");
-        VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
-        redFootprint.setName("Red-Footprint");
-        VuforiaTrackable frontCraters = targetsRoverRuckus.get(2);
-        frontCraters.setName("Front-Craters");
-        VuforiaTrackable backSpace = targetsRoverRuckus.get(3);
-        backSpace.setName("Back-Space");
+        VuforiaTrackables Nav1 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        VuforiaTrackables Nav2= this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        VuforiaTrackables Nav3 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        VuforiaTrackables Nav4 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+
+        VuforiaTrackable blueRover = Nav1.get(0);
+        blueRover.setName("BlueRover");
+        VuforiaTrackable redFootprint = Nav2.get(1);
+        redFootprint.setName("RedFootprint");
+        VuforiaTrackable frontCraters = Nav3.get(2);
+        frontCraters.setName("FrontCraters");
+        VuforiaTrackable backSpace = Nav4.get(3);
+       backSpace.setName("BackSpace");
 
 
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(targetsRoverRuckus);
+        allTrackables.addAll(Nav1);
+
+        List<VuforiaTrackable> allTrackables1 = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(Nav2);
+
+        List<VuforiaTrackable> allTrackables2 = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(Nav3);
+
+        List<VuforiaTrackable> allTrackables3 = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(Nav4);
+
+
 
 
         OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
@@ -146,15 +186,20 @@ public class Autonomous_6666 extends LinearOpMode{
         waitForStart();
 
         /** Start tracking the data sets we care about. */
-        targetsRoverRuckus.activate();
+        Nav1.activate();
+        Nav2.activate();
+        Nav3.activate();
+        Nav4.activate();
+
         while (opModeIsActive()) {
 
             // check all the trackable target to see which one (if any) is visible.
-            targetVisible = false;
-            for (VuforiaTrackable trackable : allTrackables) {
+            targetVisible = BlueRover;
+            for (VuforiaTrackable trackable : Nav1) {
                 if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
+                     targetVisible = true;
+
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
@@ -164,10 +209,18 @@ public class Autonomous_6666 extends LinearOpMode{
                     }
                     break;
                 }
+
+                if (targetVisible = BlueRover){
+
+                    lm.setPower(.75);
+                    rm.setPower(.75);
+                    sleep(5000);
+
+                }
             }
 
             // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible) {
+            if (targetVisible = BlueRover) {
                 // express position (translation) of robot in inches.
                 VectorF translation = lastLocation.getTranslation();
                 telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
@@ -183,23 +236,5 @@ public class Autonomous_6666 extends LinearOpMode{
             telemetry.update();
         }
         //vuforia
-
-        //Movement
-        lm = hardwareMap.dcMotor.get("lm");
-        rm = hardwareMap.dcMotor.get("rm");
-        up = hardwareMap.dcMotor.get("up");
-
-        //up.setDirection(DcMotor.Direction.REVERSE);
-        rm.setDirection(DcMotor.Direction.REVERSE);
-        waitForStart();
-
-        up.setPower(1);
-        sleep(500);
-
-        lm.setPower(-.75);
-        rm.setPower(.75);
-        sleep(1000);
-        //Movement
-
     }
 }
