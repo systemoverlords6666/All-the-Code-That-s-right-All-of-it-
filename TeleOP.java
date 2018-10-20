@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@TeleOp(name = "TeleOP_6666_wheels")
+@TeleOp(name = "TeleOP_6666")
 public class TeleOP_6666 extends OpMode{
 
-    // Robot  start
+
 
     DcMotor lm;
     DcMotor rm;
@@ -43,7 +43,4 @@ public class TeleOP_6666 extends OpMode{
         up.setPower(goingup);
 
     }
-
-    //Robot Motion Ends
-
 }
