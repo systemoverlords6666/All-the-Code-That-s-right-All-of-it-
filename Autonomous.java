@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -22,16 +24,16 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
-public class Autonomous_6666 extends LinearOpMode{
-
+@Autonomous (name = "Autonomous_6666" , group = "sensor")
+public class Autonomous_6666 extends LinearOpMode {
 
 
     //VuForia
     private static final String VUFORIA_KEY = " AftOfUH/////AAABmfHQ2PnhyUltsx5fIsmFJ1YV/zibssSiPsNVcVrP2Ggre0S6BwhjjZhVlUVe6PQ5jKk1g9ys9Z5nd81xFqyP7Pyg072BJpsj3jQcxkMxK0E8bXcqqctYkPVfvEhh/GlDssHzfHq812FlVMepvkxF2xLzL9jhhhbYhjm9nDlMRJb8oW6tANHjZRJ7LOyDi2QJClST1SwuLDwgCpif6UyXOJ7bXulirIWAJL4LED5kNl8qTsGYRteYwsrxA+JkwHN5pMbUgofWfcrVRcxMJcep4IYCDFQbsgct3wqsLnGSo6n5WbfyLanh9azncmd/l1Kt+t8pAXU0wVNU3L1BrOZ3isJo2psseqZkdeGzNGQZPcP";
 
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;
-    private static final float mmTargetHeight   = (6) * mmPerInch;
+    private static final float mmPerInch = 25.4f;
+    private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;
+    private static final float mmTargetHeight = (6) * mmPerInch;
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
 
@@ -44,6 +46,7 @@ public class Autonomous_6666 extends LinearOpMode{
     boolean RedFootprint;
     boolean FrontCraters;
     boolean BackSpace;
+    double sensor_ods;
 
     //Vuforia
 
@@ -53,8 +56,12 @@ public class Autonomous_6666 extends LinearOpMode{
     DcMotor up;
     //motion
 
+    // Optical Distance Sensor
+    OpticalDistanceSensor odsSensor;
+    //Optical Distance sensor
 
-    @Override public void runOpMode() throws InterruptedException {
+    @Override
+    public void runOpMode() throws InterruptedException {
 
         //Movement
         lm = hardwareMap.dcMotor.get("lm");
@@ -67,11 +74,6 @@ public class Autonomous_6666 extends LinearOpMode{
 
         up.setPower(1);
         sleep(500);
-
-        lm.setPower(-.75);
-        rm.setPower(.75);
-        sleep(750);
-
         //movements
 
         //vuforia
@@ -80,16 +82,15 @@ public class Autonomous_6666 extends LinearOpMode{
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
 
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY ;
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CAMERA_CHOICE;
 
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
 
         VuforiaTrackables Nav1 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        VuforiaTrackables Nav2= this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        VuforiaTrackables Nav2 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
         VuforiaTrackables Nav3 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
         VuforiaTrackables Nav4 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
 
@@ -100,7 +101,7 @@ public class Autonomous_6666 extends LinearOpMode{
         VuforiaTrackable frontCraters = Nav3.get(2);
         frontCraters.setName("FrontCraters");
         VuforiaTrackable backSpace = Nav4.get(3);
-       backSpace.setName("BackSpace");
+        backSpace.setName("BackSpace");
 
 
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -114,8 +115,6 @@ public class Autonomous_6666 extends LinearOpMode{
 
         List<VuforiaTrackable> allTrackables3 = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(Nav4);
-
-
 
 
         OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
@@ -132,7 +131,7 @@ public class Autonomous_6666 extends LinearOpMode{
 
         OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
                 .translation(-mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90));
         frontCraters.setLocation(frontCratersLocationOnField);
 
 
@@ -165,9 +164,9 @@ public class Autonomous_6666 extends LinearOpMode{
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
+        final int CAMERA_FORWARD_DISPLACEMENT = 110;   // eg: Camera is 110 mm in front of robot center
         final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+        final int CAMERA_LEFT_DISPLACEMENT = 0;     // eg: Camera is ON the robot's center line
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -175,9 +174,20 @@ public class Autonomous_6666 extends LinearOpMode{
                         CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
 
 
-        for (VuforiaTrackable trackable : allTrackables)
-        {
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        for (VuforiaTrackable trackable : allTrackables) {
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        }
+
+        for (VuforiaTrackable trackable : allTrackables1) {
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        }
+
+        for (VuforiaTrackable trackable : allTrackables2) {
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        }
+
+        for (VuforiaTrackable trackable : allTrackables3) {
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
 
         /** Wait for the game to begin */
@@ -196,25 +206,73 @@ public class Autonomous_6666 extends LinearOpMode{
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = BlueRover;
             for (VuforiaTrackable trackable : Nav1) {
-                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
-                     targetVisible = true;
 
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
                     if (robotLocationTransform != null) {
                         lastLocation = robotLocationTransform;
                     }
                     break;
                 }
 
-                if (targetVisible = BlueRover){
+                if (targetVisible = BlueRover = true) {
+
+                    lm.setPower(-.75);
+                    rm.setPower(.75);
+                    sleep(750);
+
 
                     lm.setPower(.75);
                     rm.setPower(.75);
                     sleep(5000);
+
+                }
+
+                if (targetVisible = BlueRover = false) {
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1750);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1750);
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1750);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1750);
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1750);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1750);
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1750);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1750);
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1750);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1750);
 
                 }
             }
@@ -229,12 +287,133 @@ public class Autonomous_6666 extends LinearOpMode{
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
                 telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            } else {
+                telemetry.addData("Visible Target", "none");
             }
-            else {
+            telemetry.update();
+        }
+
+        while (opModeIsActive()) {
+
+            // check all the trackable target to see which one (if any) is visible.
+            targetVisible = FrontCraters;
+            for (VuforiaTrackable trackable : Nav3) {
+                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                    telemetry.addData("Visible Target", trackable.getName());
+
+
+                    // getUpdatedRobotLocation() will return null if no new information is available since
+                    // the last time that call was made, or if the trackable is not currently visible.
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
+                    if (robotLocationTransform != null) {
+                        lastLocation = robotLocationTransform;
+                    }
+                    break;
+                }
+
+                if (targetVisible = FrontCraters = true) {
+
+                    lm.setPower(-.75);
+                    rm.setPower(.75);
+                    sleep(750);
+
+                    lm.setPower(.75);
+                    rm.setPower(.75);
+                    sleep(5000);
+                }
+
+                if (targetVisible = FrontCraters = false) {
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1000);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1000);
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1000);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1000);
+
+                    lm.setPower(-.45);
+                    rm.setPower(.45);
+                    sleep(1000);
+
+                    lm.setPower(.45);
+                    rm.setPower(-.45);
+                    sleep(1000);
+
+                }
+            }
+
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible = BlueRover) {
+                // express position (translation) of robot in inches.
+                VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            } else {
+                telemetry.addData("Visible Target", "none");
+            }
+            telemetry.update();
+
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible = FrontCraters) {
+                // express position (translation) of robot in inches.
+                VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            } else {
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
         }
         //vuforia
+
+        //Optical Distance Sensor start
+
+        // get a reference to our Light Sensor object.
+        odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
+
+        // wait for the start button to be pressed.
+        waitForStart();
+
+        // while the op mode is active, loop and read the light levels.
+        // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
+        while (opModeIsActive()) {
+
+            // send the info back to driver station using telemetry function.
+            telemetry.addData("Raw",    odsSensor.getRawLightDetected());
+            telemetry.addData("Normal", odsSensor.getLightDetected());
+
+            telemetry.update();
+
+            if (sensor_ods =) {// Type Gold Values//
+
+
+                
+            }
+            if (sensor_ods =) { // Type silver Values   
+
+
+                
+            }
+        }
+
+        //Optical Distance Sensor end
+
     }
 }
