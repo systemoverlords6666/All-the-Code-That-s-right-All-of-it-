@@ -24,7 +24,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
-@Autonomous (name = "Autonomous_6666" , group = "sensor")
+@Autonomous (name = "Autonomous_6666" ,  group = "sensor")
 public class Autonomous_6666 extends LinearOpMode {
 
 
@@ -35,7 +35,7 @@ public class Autonomous_6666 extends LinearOpMode {
     private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;
     private static final float mmTargetHeight = (6) * mmPerInch;
 
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 
     private OpenGLMatrix lastLocation = null;
     private boolean targetVisible = false;
@@ -73,7 +73,11 @@ public class Autonomous_6666 extends LinearOpMode {
         waitForStart();
 
         up.setPower(1);
-        sleep(500);
+        sleep(750);
+
+        lm.setPower(-.75);
+        rm.setPower(.75);
+        sleep(3000);
         //movements
 
         //vuforia
@@ -88,6 +92,7 @@ public class Autonomous_6666 extends LinearOpMode {
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
+        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
 
         VuforiaTrackables Nav1 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
         VuforiaTrackables Nav2 = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
@@ -170,9 +175,7 @@ public class Autonomous_6666 extends LinearOpMode {
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                        CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
-
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
 
         for (VuforiaTrackable trackable : allTrackables) {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
@@ -219,201 +222,129 @@ public class Autonomous_6666 extends LinearOpMode {
                     break;
                 }
 
-                if (targetVisible = BlueRover = true) {
-
-                    lm.setPower(-.75);
-                    rm.setPower(.75);
-                    sleep(750);
-
+                if (targetVisible = BlueRover) {
 
                     lm.setPower(.75);
-                    rm.setPower(.75);
-                    sleep(5000);
+                    rm.setPower(-.75);
+                    sleep(2500);
+
+                    lm.setPower(1);
+                    rm.setPower(1);
+                    sleep(7500);
+
+                    lm.setPower(1);
+                    lm.setPower(1);
+                    sleep(150);
+
+                    // servo drops the team marker
 
                 }
 
-                if (targetVisible = BlueRover = false) {
+                // Provide feedback as to where the robot is located (if we know).
+                if (targetVisible = BlueRover) {
+                    // express position (translation) of robot in inches.
+                    VectorF translation = lastLocation.getTranslation();
+                    telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                            translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
 
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1750);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1750);
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1750);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1750);
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1750);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1750);
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1750);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1750);
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1750);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1750);
-
+                    // express the rotation of the robot in degrees.
+                    Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                    telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                } else {
+                    telemetry.addData("Visible Target", "none");
                 }
+                telemetry.update();
             }
 
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible = BlueRover) {
-                // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+            while (opModeIsActive()) {
 
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            } else {
-                telemetry.addData("Visible Target", "none");
-            }
-            telemetry.update();
-        }
-
-        while (opModeIsActive()) {
-
-            // check all the trackable target to see which one (if any) is visible.
-            targetVisible = FrontCraters;
-            for (VuforiaTrackable trackable : Nav3) {
-                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
+                // check all the trackable target to see which one (if any) is visible.
+                targetVisible = FrontCraters;
+                for (VuforiaTrackable trackable : Nav3) {
+                    if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                        telemetry.addData("Visible Target", trackable.getName());
 
 
-                    // getUpdatedRobotLocation() will return null if no new information is available since
-                    // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
+                        // getUpdatedRobotLocation() will return null if no new information is available since
+                        // the last time that call was made, or if the trackable is not currently visible.
+                        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
+                        if (robotLocationTransform != null) {
+                            lastLocation = robotLocationTransform;
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                if (targetVisible = FrontCraters = true) {
+                    if (targetVisible = FrontCraters = true) {
 
-                    lm.setPower(-.75);
-                    rm.setPower(.75);
-                    sleep(750);
 
-                    lm.setPower(.75);
-                    rm.setPower(.75);
-                    sleep(5000);
-                }
 
-                if (targetVisible = FrontCraters = false) {
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1000);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1000);
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1000);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1000);
-
-                    lm.setPower(-.45);
-                    rm.setPower(.45);
-                    sleep(1000);
-
-                    lm.setPower(.45);
-                    rm.setPower(-.45);
-                    sleep(1000);
+                    }
 
                 }
+
+                // Provide feedback as to where the robot is located (if we know).
+                if (targetVisible = BlueRover) {
+                    // express position (translation) of robot in inches.
+                    VectorF translation = lastLocation.getTranslation();
+                    telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                            translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                    // express the rotation of the robot in degrees.
+                    Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                    telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                } else {
+                    telemetry.addData("Visible Target", "none");
+                }
+                telemetry.update();
+
+                // Provide feedback as to where the robot is located (if we know).
+                if (targetVisible = FrontCraters) {
+                    // express position (translation) of robot in inches.
+                    VectorF translation = lastLocation.getTranslation();
+                    telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                            translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                    // express the rotation of the robot in degrees.
+                    Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                    telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                } else {
+                    telemetry.addData("Visible Target", "none");
+                }
+                telemetry.update();
             }
+            //vuforia
 
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible = BlueRover) {
-                // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+            //Optical Distance Sensor start
 
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            } else {
-                telemetry.addData("Visible Target", "none");
-            }
-            telemetry.update();
+            // get a reference to our Light Sensor object.
+            odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
 
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible = FrontCraters) {
-                // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+            // wait for the start button to be pressed.
+            waitForStart();
 
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            } else {
-                telemetry.addData("Visible Target", "none");
-            }
-            telemetry.update();
+            // while the op mode is active, loop and read the light levels.
+            // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
+          //  while (opModeIsActive()) {
+
+                // send the info back to driver station using telemetry function.
+                //telemetry.addData("Raw", odsSensor.getRawLightDetected());
+                //telemetry.addData("Normal", odsSensor.getLightDetected());
+
+                //telemetry.update();
+
+               // if (sensor_ods =) {// Type Gold Values//
+
+
+              //  }
+             //   if (sensor_ods =) { // Type silver Values
+
+
+                //}
+            //}
+
+            //Optical Distance Sensor end
+
         }
-        //vuforia
-
-        //Optical Distance Sensor start
-
-        // get a reference to our Light Sensor object.
-        odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
-
-        // wait for the start button to be pressed.
-        waitForStart();
-
-        // while the op mode is active, loop and read the light levels.
-        // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
-        while (opModeIsActive()) {
-
-            // send the info back to driver station using telemetry function.
-            telemetry.addData("Raw",    odsSensor.getRawLightDetected());
-            telemetry.addData("Normal", odsSensor.getLightDetected());
-
-            telemetry.update();
-
-            if (sensor_ods =) {// Type Gold Values//
-
-
-                
-            }
-            if (sensor_ods =) { // Type silver Values   
-
-
-                
-            }
-        }
-
-        //Optical Distance Sensor end
-
     }
 }
+
